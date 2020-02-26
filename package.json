@@ -1,0 +1,24 @@
+{
+  "name": "web-components",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel build index.html",
+    "start": "parcel index.html --public-url /"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/serioga-ninja/web-components.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/serioga-ninja/web-components/issues"
+  },
+  "homepage": "https://github.com/serioga-ninja/web-components#readme",
+  "devDependencies": {
+    "parcel": "^1.12.4",
+    "typescript": "^3.8.2"
+  }
+}
