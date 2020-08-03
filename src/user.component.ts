@@ -1,10 +1,10 @@
-import { Component, HTMLComponentBase } from './component.base';
+import { Component, ComponentEvent, IComponent } from './component.base';
 
 @Component({
     name: 'user-component',
     template: `<h1>Hello world</h1>`
 })
-export class UserComponent {
+export class UserComponent implements IComponent {
 
 }
 
@@ -12,6 +12,10 @@ export class UserComponent {
     name: 'group-component',
     template: `<h1>Hello world</h1>`
 })
-export class GroupComponent {
+export class GroupComponent implements IComponent {
 
+    @ComponentEvent('click')
+    onClick(ev) {
+        console.log(ev);
+    }
 }
