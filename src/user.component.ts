@@ -1,7 +1,6 @@
 import { Component, IComponent } from './decorators/component';
 import { ComponentEvent } from './decorators/event';
 import { UserService } from './user.service';
-import { rand } from './utils';
 
 @Component({
     name: 'user-component',

@@ -1,8 +1,9 @@
+export type TClass = new (...args: any[]) => any;
+
 interface IDependenceRow {
-    name: string;
     Class: new (...args: any[]) => any;
     injectable: boolean;
-    require?: string[];
+    require?: TClass[];
     instance?: any;
 }
 
@@ -10,19 +11,18 @@ const register: IDependenceRow[] = [];
 
 class Dependencies {
 
-    register(name: string, Class: new (...args: any) => any, injectable: boolean, require: string[] = []) {
+    register(Class: TClass, injectable: boolean, require: TClass[] = []) {
         register.push({
-            name,
             Class,
             injectable,
             require
         })
     }
 
-    getInstances(require?: string[]): any[] {
-        return (require || []).map((name) => {
+    getInstances(require?: TClass[]): any[] {
+        return (require || []).map((Class) => {
             return this.requireInstance(
-                register.find((row) => row.name === name)
+                register.find((row) => row.Class.name === Class.name)
             );
         })
     }

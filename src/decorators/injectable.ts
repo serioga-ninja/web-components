@@ -1,14 +1,11 @@
-import dependencies from '../dependencies';
+import dependencies, { TClass } from '../dependencies';
 
 export interface IInjectableOptions {
-    name?: string;
-    require?: string[];
+    require?: TClass[];
 }
 
 export const Injectable = (options: IInjectableOptions = {}) => {
-    return (ComponentClass: any) => {
-        const name = options.name || ComponentClass.name;
-
-        dependencies.register(name, ComponentClass, true, options.require);
+    return (ComponentClass: TClass) => {
+        dependencies.register(ComponentClass, true, options.require);
     }
 }

@@ -1,5 +1,5 @@
 import * as ejs from 'ejs';
-import dependencies from '../dependencies';
+import dependencies, { TClass } from '../dependencies';
 import { Logger } from '../logger';
 import { Register, TComponent } from '../register';
 import { prepareClass } from '../utils';
@@ -8,7 +8,7 @@ export interface IHtmlComponentOptions {
     name: string;
     template?: string;
     templateUrl?: string;
-    require?: any[];
+    require?: TClass[];
 }
 
 export interface IComponent {
@@ -18,7 +18,7 @@ export interface IComponent {
 export const Component = (options: IHtmlComponentOptions) => {
     return (ComponentClass: TComponent) => {
         prepareClass(ComponentClass);
-        dependencies.register(options.name, ComponentClass, false, options.require.map((row) => row.name));
+        dependencies.register(ComponentClass, false, options.require);
 
         customElements.define(options.name, class extends HTMLElement {
             static get observedAttributes() {
@@ -34,7 +34,8 @@ export const Component = (options: IHtmlComponentOptions) => {
                 this.logger = Logger.instance;
                 this.attachShadow({ mode: 'open' });
 
-                this.componentInstance = new ComponentClass(...dependencies.getInstances(options.require.map((row) => row.name)));
+
+                this.componentInstance = new ComponentClass(...dependencies.getInstances(options.require));
 
                 Register.instance.registerComponent(this, this.componentInstance);
                 this.registerEvents();
@@ -80,7 +81,6 @@ export const Component = (options: IHtmlComponentOptions) => {
              * The custom element has been moved into a new document (e.g. someone called document.adoptNode(el)).
              */
             adoptedCallback() {
-
             }
 
             render() {
