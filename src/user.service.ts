@@ -1,4 +1,4 @@
-import { Injectable } from './decorators/injectable';
+import { Injectable } from './logic/decorators/injectable';
 import { rand } from './utils';
 
 export interface IUser {

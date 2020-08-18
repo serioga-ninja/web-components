@@ -1,6 +1,7 @@
-import { Component, IComponent } from './decorators/component';
-import { ComponentEvent } from './decorators/event';
-import { UserService } from './user.service';
+import { Component, IComponent } from './logic/decorators/component';
+import { ComponentEvent } from './logic/decorators/event';
+import { IUser, UserService } from './user.service';
+import { rand } from './utils';
 
 @Component({
     name: 'user-component',
@@ -12,7 +13,7 @@ import { UserService } from './user.service';
 })
 export class UserComponent implements IComponent {
 
-    user: any;
+    user: IUser;
 
     constructor(userService: UserService) {
         this.user = userService.user;
@@ -20,6 +21,7 @@ export class UserComponent implements IComponent {
 
     @ComponentEvent('click')
     onClick() {
+        this.user.name = rand(2323);
         console.log(this.user);
     }
 }

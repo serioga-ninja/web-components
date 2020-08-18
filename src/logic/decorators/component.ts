@@ -1,8 +1,9 @@
 import * as ejs from 'ejs';
-import dependencies, { TClass } from '../dependencies';
-import { Logger } from '../logger';
-import { Register, TComponent } from '../register';
-import { prepareClass } from '../utils';
+import dependencies, { TClass } from '../../dependencies';
+import { Logger } from '../../logger';
+import { Register, TComponent } from '../../register';
+import { prepareClass } from '../../utils';
+import { proxyFactory } from '../watch-factory';
 
 export interface IHtmlComponentOptions {
     name: string;
@@ -15,17 +16,24 @@ export interface IComponent {
 
 }
 
+export interface IWebComponent extends HTMLElement {
+    render(): void;
+}
+
+
 export const Component = (options: IHtmlComponentOptions) => {
     return (ComponentClass: TComponent) => {
         prepareClass(ComponentClass);
+
         dependencies.register(ComponentClass, false, options.require);
 
-        customElements.define(options.name, class extends HTMLElement {
+        customElements.define(options.name, class extends HTMLElement implements IWebComponent {
             static get observedAttributes() {
                 return [];
             }
 
             protected componentInstance: IComponent;
+            protected ready: boolean;
             protected logger: Logger;
 
             constructor() {
@@ -34,11 +42,18 @@ export const Component = (options: IHtmlComponentOptions) => {
                 this.logger = Logger.instance;
                 this.attachShadow({ mode: 'open' });
 
-
-                this.componentInstance = new ComponentClass(...dependencies.getInstances(options.require));
+                this.createInstance();
 
                 Register.instance.registerComponent(this, this.componentInstance);
+
                 this.registerEvents();
+                this.ready = true;
+            }
+
+            private createInstance() {
+                const Constructor = proxyFactory(this, ComponentClass);
+
+                this.componentInstance = new Constructor(...dependencies.getInstances(options.require));
             }
 
             private registerEvents() {

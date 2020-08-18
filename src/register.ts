@@ -1,4 +1,4 @@
-import { IComponent } from './decorators/component';
+import { IComponent } from './logic/decorators/component';
 import { rand } from './utils';
 
 export type TComponent = new (...args: any[]) => IComponent;
@@ -36,6 +36,7 @@ export class Register {
     }
 
     registerEvent(ComponentClass: TComponent, callback: (el?: HTMLElement) => void, eventName: string) {
+
         this.events.push({
             component: ComponentClass,
             callback,
