@@ -1,5 +1,7 @@
 import { Logger } from './logger';
-import { prepareClass, rand } from './utils';
+import { Register, TComponent } from './register';
+import { prepareClass } from './utils';
+import * as ejs from 'ejs';
 
 export interface IHtmlComponentOptions {
     name: string;
@@ -11,43 +13,17 @@ export interface IComponent {
 
 }
 
-
-interface IRegisterItem {
-    component: HTMLElement;
-    relatedClass: IComponent;
-    events
-}
-
-class Register {
-
-    private static _instance: Register;
-
-    public static get instance() {
-        return Register._instance || (Register._instance = new Register());
-    }
-
-    private items: { [key: string]: IRegisterItem };
-
-    constructor() {
-        this.items = {};
-    }
-
-    registerEvent(target, eventName: string) {
-        const item = this.items[target['_id']] || (this.items[target['_id']] = target);
-    }
-}
-
 export function ComponentEvent(eventName: string) {
 
     return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
         prepareClass(target);
 
-        Register.instance.registerEvent(target, eventName);
+        Register.instance.registerEvent(target, descriptor.value, eventName);
     }
 }
 
 export const Component = (options: IHtmlComponentOptions) => {
-    return (ComponentClass) => {
+    return (ComponentClass: TComponent) => {
         prepareClass(ComponentClass);
 
         customElements.define(options.name, class extends HTMLElement {
@@ -55,6 +31,7 @@ export const Component = (options: IHtmlComponentOptions) => {
                 return [];
             }
 
+            protected componentInstance: IComponent;
             protected logger: Logger;
 
             constructor() {
@@ -62,6 +39,20 @@ export const Component = (options: IHtmlComponentOptions) => {
 
                 this.logger = Logger.instance;
                 this.attachShadow({ mode: 'open' });
+
+                this.componentInstance = new ComponentClass();
+
+                Register.instance.registerComponent(this, this.componentInstance);
+                this.registerEvents();
+            }
+
+            private registerEvents() {
+                const events = Register.instance.getEvents(this.componentInstance['_id']);
+                for (const row of events) {
+                    this.addEventListener(row.eventName, (ev) => {
+                        row.callback.call(this.componentInstance, this, ev);
+                    });
+                }
             }
 
             /**
@@ -101,7 +92,7 @@ export const Component = (options: IHtmlComponentOptions) => {
             render() {
                 const { shadowRoot } = this;
 
-                shadowRoot.innerHTML = options.template;
+                shadowRoot.innerHTML = ejs.render(options.template, this.componentInstance);
             }
         });
     };

@@ -18,7 +18,11 @@
   },
   "homepage": "https://github.com/serioga-ninja/web-components#readme",
   "devDependencies": {
+    "@types/ejs": "^3.0.4",
     "parcel": "^1.12.4",
     "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "ejs": "^3.1.5"
   }
 }

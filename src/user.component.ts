@@ -1,21 +1,23 @@
 import { Component, ComponentEvent, IComponent } from './component.base';
+import { rand } from './utils';
 
 @Component({
     name: 'user-component',
-    template: `<h1>Hello world</h1>`
+    template: `
+    <h1>
+        Hello <%= user.name %>
+    </h1>`
 })
 export class UserComponent implements IComponent {
 
-}
+    user: any;
 
-@Component({
-    name: 'group-component',
-    template: `<h1>Hello world</h1>`
-})
-export class GroupComponent implements IComponent {
+    constructor() {
+        this.user = { name: rand(10000) }
+    }
 
     @ComponentEvent('click')
-    onClick(ev) {
-        console.log(ev);
+    onClick() {
+        console.log(this.user);
     }
 }
