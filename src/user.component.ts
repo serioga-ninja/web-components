@@ -1,4 +1,6 @@
-import { Component, ComponentEvent, IComponent } from './component.base';
+import { Component, IComponent } from './decorators/component';
+import { ComponentEvent } from './decorators/event';
+import { UserService } from './user.service';
 import { rand } from './utils';
 
 @Component({
@@ -6,14 +8,15 @@ import { rand } from './utils';
     template: `
     <h1>
         Hello <%= user.name %>
-    </h1>`
+    </h1>`,
+    require: [UserService]
 })
 export class UserComponent implements IComponent {
 
     user: any;
 
-    constructor() {
-        this.user = { name: rand(10000) }
+    constructor(userService: UserService) {
+        this.user = userService.user;
     }
 
     @ComponentEvent('click')

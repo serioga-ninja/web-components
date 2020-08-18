@@ -1,30 +1,24 @@
-import { Logger } from './logger';
-import { Register, TComponent } from './register';
-import { prepareClass } from './utils';
 import * as ejs from 'ejs';
+import dependencies from '../dependencies';
+import { Logger } from '../logger';
+import { Register, TComponent } from '../register';
+import { prepareClass } from '../utils';
 
 export interface IHtmlComponentOptions {
     name: string;
     template?: string;
     templateUrl?: string;
+    require?: any[];
 }
 
 export interface IComponent {
 
 }
 
-export function ComponentEvent(eventName: string) {
-
-    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-        prepareClass(target);
-
-        Register.instance.registerEvent(target, descriptor.value, eventName);
-    }
-}
-
 export const Component = (options: IHtmlComponentOptions) => {
     return (ComponentClass: TComponent) => {
         prepareClass(ComponentClass);
+        dependencies.register(options.name, ComponentClass, false, options.require.map((row) => row.name));
 
         customElements.define(options.name, class extends HTMLElement {
             static get observedAttributes() {
@@ -40,7 +34,7 @@ export const Component = (options: IHtmlComponentOptions) => {
                 this.logger = Logger.instance;
                 this.attachShadow({ mode: 'open' });
 
-                this.componentInstance = new ComponentClass();
+                this.componentInstance = new ComponentClass(...dependencies.getInstances(options.require.map((row) => row.name)));
 
                 Register.instance.registerComponent(this, this.componentInstance);
                 this.registerEvents();
