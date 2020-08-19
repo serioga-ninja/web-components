@@ -1,8 +1,8 @@
 import * as ejs from 'ejs';
-import dependencies, { TClass } from '../../dependencies';
-import { Logger } from '../../logger';
-import { Register, TComponent } from '../../register';
-import { prepareClass } from '../../utils';
+import dependencies, { TClass } from '../dependencies';
+import { Logger } from '../logger';
+import { Register, TComponent } from '../register';
+import { prepareClass } from '../utils';
 import { proxyFactory } from '../watch-factory';
 
 export interface IHtmlComponentOptions {
@@ -13,7 +13,10 @@ export interface IHtmlComponentOptions {
 }
 
 export interface IComponent {
-
+    onInit?(): void;
+    onDestroy?(): void;
+    afterRender?(): void;
+    beforeRender?(): void;
 }
 
 export interface IWebComponent extends HTMLElement {
@@ -83,6 +86,10 @@ export const Component = (options: IHtmlComponentOptions) => {
              * resources or rendering. Generally, you should try to delay work until this time.
              */
             connectedCallback() {
+                if (typeof this.componentInstance.onInit === 'function') {
+                    this.componentInstance.onInit();
+                }
+
                 this.render();
             }
 
@@ -90,6 +97,9 @@ export const Component = (options: IHtmlComponentOptions) => {
              * Called every time the element is removed from the DOM. Useful for running clean up code.
              */
             disconnectedCallback() {
+                if (typeof this.componentInstance.onDestroy === 'function') {
+                    this.componentInstance.onDestroy();
+                }
             }
 
             /**
@@ -101,7 +111,15 @@ export const Component = (options: IHtmlComponentOptions) => {
             render() {
                 const { shadowRoot } = this;
 
+                if (typeof this.componentInstance.beforeRender === 'function') {
+                    this.componentInstance.beforeRender();
+                }
+
                 shadowRoot.innerHTML = ejs.render(options.template, this.componentInstance);
+
+                if (typeof this.componentInstance.afterRender === 'function') {
+                    this.componentInstance.afterRender();
+                }
             }
         });
     };

@@ -1,4 +1,4 @@
-import { IComponent } from './logic/decorators/component';
+import { IComponent } from './decorators/component';
 import { rand } from './utils';
 
 export type TComponent = new (...args: any[]) => IComponent;

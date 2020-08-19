@@ -1,5 +1,5 @@
-import { Register } from '../../register';
-import { prepareClass } from '../../utils';
+import { Register } from '../register';
+import { prepareClass } from '../utils';
 
 export function ComponentEvent(eventName: string) {
 

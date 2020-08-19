@@ -18,8 +18,8 @@ const objectProxyWrapper = (obj: object, changeCallback: (prev?: any, newValue?:
                 value = objectProxyWrapper(value, changeCallback);
             }
 
-            changeCallback(obj[prop], value)
             obj[prop] = value;
+            changeCallback();
 
             return true;
         }

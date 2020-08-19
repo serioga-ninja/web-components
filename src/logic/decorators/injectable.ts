@@ -1,4 +1,4 @@
-import dependencies, { TClass } from '../../dependencies';
+import dependencies, { TClass } from '../dependencies';
 
 export interface IInjectableOptions {
     require?: TClass[];
