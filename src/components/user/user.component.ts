@@ -7,9 +7,10 @@ import { rand } from '../../logic/utils';
     name: 'user-component',
     template: `
     <h1>
-        Hello <%= user.name %>
+        Hello <%= user.name %> 
     </h1>`,
-    require: [UserService]
+    require: [UserService],
+    attributes: ['id']
 })
 export class UserComponent implements IComponent {
 
@@ -25,7 +26,8 @@ export class UserComponent implements IComponent {
         console.log(this.user);
     }
 
-    async onInit() {
-        this.user = await this.userService.loadUser();
+    async onInit(attrs: { id: string }) {
+        console.log(attrs);
+        this.user = await this.userService.loadUser(attrs.id);
     }
 }

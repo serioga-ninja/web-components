@@ -3,6 +3,7 @@ import { rand } from '../../logic/utils';
 
 export interface IUser {
     name: string | number;
+    id: string | number;
 }
 
 @Injectable()
@@ -15,10 +16,13 @@ export class UserService {
     }
 
 
-    loadUser(): Promise<IUser> {
+    loadUser(id: string): Promise<IUser> {
         return new Promise<IUser>((resolve) => {
             setTimeout(() => {
-                this.user = { name: rand(10000) };
+                this.user = {
+                    name: rand(10000),
+                    id
+                };
 
                 resolve(this.user);
             }, 1000);

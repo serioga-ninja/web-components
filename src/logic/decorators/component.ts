@@ -10,13 +10,15 @@ export interface IHtmlComponentOptions {
     template?: string;
     templateUrl?: string;
     require?: TClass[];
+    attributes?: string[];
 }
 
 export interface IComponent {
-    onInit?(): void;
+    onInit?(attrs?: { [key: string]: any; }): void;
     onDestroy?(): void;
     afterRender?(): void;
     beforeRender?(): void;
+    onAttributesChange?(oldValue?: string, newValue?: string): void;
 }
 
 export interface IWebComponent extends HTMLElement {
@@ -32,7 +34,7 @@ export const Component = (options: IHtmlComponentOptions) => {
 
         customElements.define(options.name, class extends HTMLElement implements IWebComponent {
             static get observedAttributes() {
-                return [];
+                return options.attributes;
             }
 
             protected componentInstance: IComponent;
@@ -49,7 +51,6 @@ export const Component = (options: IHtmlComponentOptions) => {
 
                 Register.instance.registerComponent(this, this.componentInstance);
 
-                this.registerEvents();
                 this.ready = true;
             }
 
@@ -76,8 +77,8 @@ export const Component = (options: IHtmlComponentOptions) => {
             attributeChangedCallback(attrName: string, oldValue: string, newValue: string) {
                 this.logger.log(attrName, oldValue, newValue);
 
-                if (oldValue !== newValue) {
-                    this[attrName] = this.hasAttribute(attrName);
+                if (typeof this.componentInstance.onAttributesChange === 'function') {
+                    this.componentInstance.onAttributesChange(oldValue, newValue);
                 }
             }
 
@@ -86,8 +87,14 @@ export const Component = (options: IHtmlComponentOptions) => {
              * resources or rendering. Generally, you should try to delay work until this time.
              */
             connectedCallback() {
+                this.registerEvents();
                 if (typeof this.componentInstance.onInit === 'function') {
-                    this.componentInstance.onInit();
+                    const attrs = {};
+                    for (const key of this.getAttributeNames()) {
+                        attrs[key] = this.getAttribute(key);
+                    }
+
+                    this.componentInstance.onInit(attrs);
                 }
 
                 this.render();
