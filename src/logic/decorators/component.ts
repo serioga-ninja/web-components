@@ -2,7 +2,7 @@ import * as ejs from 'ejs';
 import dependencies, { TClass } from '../dependencies';
 import { Logger } from '../logger';
 import { Register, TComponent } from '../register';
-import { prepareClass } from '../utils';
+import { prepareClass, rand } from '../utils';
 import { proxyFactory } from '../watch-factory';
 
 export interface IHtmlComponentOptions {
@@ -40,6 +40,7 @@ export const Component = (options: IHtmlComponentOptions) => {
             protected componentInstance: IComponent;
             protected ready: boolean;
             protected logger: Logger;
+            protected _id: string;
 
             constructor() {
                 super();
@@ -52,10 +53,11 @@ export const Component = (options: IHtmlComponentOptions) => {
                 Register.instance.registerComponent(this, this.componentInstance);
 
                 this.ready = true;
+                this._id = rand(100000).toString();
             }
 
             private createInstance() {
-                const Constructor = proxyFactory(this, ComponentClass);
+                const Constructor = proxyFactory(this, ComponentClass, options.attributes);
 
                 this.componentInstance = new Constructor(...dependencies.getInstances(options.require));
             }

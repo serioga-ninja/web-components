@@ -31,3 +31,23 @@ export class UserComponent implements IComponent {
         this.user = await this.userService.loadUser(attrs.id);
     }
 }
+
+@Component({
+    name: 'text-component',
+    template: `<span><%=text%></span>`,
+    attributes: ['text']
+})
+export class TestComponent implements IComponent {
+
+    text: string;
+
+    constructor() {
+        this.text = '';
+    }
+
+    onInit({ text }) {
+        this.text = text;
+    }
+}
+
+

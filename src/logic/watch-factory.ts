@@ -32,7 +32,7 @@ const changeCallback = (element: IWebComponent) => {
     }
 };
 
-export const proxyFactory = (element: IWebComponent, ClassConstructor) => {
+export const proxyFactory = (element: IWebComponent, ClassConstructor, watchAttributes?: string[]) => {
     return class extends ClassConstructor {
         constructor(...args: any[]) {
             super(...args);
