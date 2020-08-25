@@ -54,6 +54,7 @@ export const Component = (options: IHtmlComponentOptions) => {
 
                 this.ready = true;
                 this._id = rand(100000).toString();
+                this.registerEvents();
             }
 
             private createInstance() {
@@ -89,7 +90,6 @@ export const Component = (options: IHtmlComponentOptions) => {
              * resources or rendering. Generally, you should try to delay work until this time.
              */
             connectedCallback() {
-                this.registerEvents();
                 if (typeof this.componentInstance.onInit === 'function') {
                     const attrs = {};
                     for (const key of this.getAttributeNames()) {
