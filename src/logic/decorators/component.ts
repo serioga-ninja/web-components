@@ -3,7 +3,6 @@ import dependencies, { TClass } from '../dependencies';
 import { Logger } from '../logger';
 import { Register, TComponent } from '../register';
 import { prepareClass, rand } from '../utils';
-import { proxyFactory } from '../watch-factory';
 
 export interface IHtmlComponentOptions {
     name: string;
@@ -14,6 +13,7 @@ export interface IHtmlComponentOptions {
 }
 
 export interface IComponent {
+    el?: IWebComponent;
     onInit?(attrs?: { [key: string]: any; }): void;
     onDestroy?(): void;
     afterRender?(): void;
@@ -58,9 +58,8 @@ export const Component = (options: IHtmlComponentOptions) => {
             }
 
             private createInstance() {
-                const Constructor = proxyFactory(this, ComponentClass, options.attributes);
-
-                this.componentInstance = new Constructor(...dependencies.getInstances(options.require));
+                this.componentInstance = new ComponentClass(...dependencies.getInstances(options.require));
+                this.componentInstance.el = this;
             }
 
             private registerEvents() {

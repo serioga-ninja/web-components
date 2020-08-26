@@ -1,28 +1,25 @@
 import { Injectable } from '../../logic/decorators/injectable';
 import { rand } from '../../logic/utils';
+import { UserModel } from './user.model';
 
-export interface IUser {
-    name: string | number;
-    id: string | number;
-}
 
 @Injectable()
 export class UserService {
 
-    user: IUser;
+    user: UserModel;
 
     constructor() {
-        this.user = {} as IUser;
+        this.user = new UserModel();
     }
 
 
-    loadUser(id: string): Promise<IUser> {
-        return new Promise<IUser>((resolve) => {
+    loadUser(id: string): Promise<UserModel> {
+        return new Promise<UserModel>((resolve) => {
             setTimeout(() => {
-                this.user = {
+                this.user.set({
                     name: rand(10000),
                     id
-                };
+                })
 
                 resolve(this.user);
             }, 1000);

@@ -1,49 +1,57 @@
 export interface IDictionary {
-    [key: string]: string | number | null | IDictionary | undefined;
+    [key: string]: any;
 }
 
 export type TAnyOf<T> = {
     [key in keyof T]?: T[key];
 }
 
-type TListenerCallback<T extends IDictionary> = (model?: Model<T>) => void;
-
-type TEvent =
+type TEventName =
     | 'change'
     ;
 
-class ModelEvent {
-    private eventName: TEvent;
-    private callback: any;
-    private options: any;
-
-    constructor(eventName: TEvent, callback: any, options: any) {
-        this.options = options;
-        this.callback = callback;
-        this.eventName = eventName;
-    }
+interface IEventRow {
+    eventName: TEventName;
+    callbacks: any[];
 }
 
-class ChangeEvent extends ModelEvent {
-    constructor(callback: any, options: any) {
-        super('change', callback, options);
+class EventsCollection {
+    private events: IEventRow[] = [];
+
+    get(eventName: TEventName): IEventRow | null {
+        return this.events
+            .find((event) => event.eventName === eventName);
+    }
+
+    add(eventName: TEventName, callback: any) {
+        const eventRow = this.get(eventName);
+        if (eventRow) {
+            eventRow.callbacks.push(callback);
+
+            return;
+        }
+
+        this.events.push({
+            eventName,
+            callbacks: [callback]
+        });
+    }
+
+    getCallbacks(eventName: TEventName): any[] {
+        return (this.get(eventName) || {}).callbacks || [];
     }
 }
-
-type TEvents =
-    | ChangeEvent
-    ;
 
 export class Model<T extends IDictionary> extends EventTarget {
 
-    private events: TEvents[];
+    private events: EventsCollection;
 
     protected attributes: T;
 
-    constructor(attributes: T) {
+    constructor(attributes: T = {} as T) {
         super();
 
-        this.events = [];
+        this.events = new EventsCollection();
         this.attributes = new Proxy(attributes, {
             set: (obj, prop: keyof T, value) => {
                 const oldValue = obj[prop];
@@ -57,54 +65,40 @@ export class Model<T extends IDictionary> extends EventTarget {
                 return true;
             }
         });
+
+        Object.defineProperty(this, 'handleEvent', {
+            writeable: false,
+            value: (event: CustomEvent) => {
+                switch (event.type as TEventName) {
+                    case 'change':
+                        for (const callback of this.events.getCallbacks('change')) {
+                            callback(event.detail, event);
+                        }
+                        break;
+                }
+            }
+        } as PropertyDescriptor);
     }
 
     private changed<TKey extends keyof T>(key: TKey, oldValue: T[TKey], newValue: T[TKey]) {
-
+        this.dispatchEvent(new CustomEvent('change', {
+            detail: {
+                key,
+                oldValue,
+                newValue
+            }
+        }))
     }
 
     /**
      * Add event listeners to the model
-     * @example build in events
-     *
-     * model.on({
-     *     'change:id'() {
-     *         // do some stuff when id changes
-     *     },
-     *     'change:name change:description'() {
-     *         // do some stuff when name OR description changes
-     *     }
-     * })
-     *
-     * @param listeners
      */
-    on(listeners: { [key: string]: TListenerCallback<T> }) {
-        this.events.push(
-            ...Object
-                .keys(listeners)
-                .reduce((res, listenersKey: string) => {
-                    const events = listenersKey
-                        .match(/([\w+:]+)/g)
-                        .filter((res) => typeof res === 'string' && res.length > 0);
+    on(eventName: TEventName, callback: any) {
+        if (!this.events.get(eventName)) {
+            this.addEventListener(eventName, this as any, false);
+        }
 
-                    res.push(
-                        ...events
-                            .reduce((eRes, eKey) => {
-                                const [eventName, param] = eKey.split(':');
-
-                                switch (eventName as TEvent) {
-                                    case 'change':
-                                        eRes.push(new ChangeEvent(listeners[listenersKey], param));
-                                        break;
-                                }
-
-                                return eRes;
-                            }, [] as TEvents[])
-                    )
-
-                    return res;
-                }, [] as TEvents[])
-        )
+        this.events.add(eventName, callback);
     }
 
     /**
