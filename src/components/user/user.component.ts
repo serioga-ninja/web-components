@@ -1,8 +1,6 @@
 import { Component, IComponent } from '../../logic/decorators/component';
-import { ComponentEvent } from '../../logic/decorators/event';
 import { UserModel } from './user.model';
 import { UserService } from './user.service';
-import { rand } from '../../logic/utils';
 
 @Component({
     name: 'user-component',
@@ -10,7 +8,7 @@ import { rand } from '../../logic/utils';
     <h1>
         Hello <%= user.get('name') %> 
     </h1>
-    <input name="name" onchange="<%= onChange() %>"/>`,
+    `,
     require: [UserService]
 })
 export class UserComponent implements IComponent {
@@ -31,24 +29,6 @@ export class UserComponent implements IComponent {
 
     onChange() {
         console.log('onchange');
-    }
-}
-
-@Component({
-    name: 'text-component',
-    template: `<span><%=text%></span>`,
-    attributes: ['text']
-})
-export class TestComponent implements IComponent {
-
-    text: string;
-
-    constructor() {
-        this.text = '';
-    }
-
-    onInit({ text }) {
-        this.text = text;
     }
 }
 

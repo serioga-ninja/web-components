@@ -66,6 +66,7 @@ export class Model<T extends IDictionary> extends EventTarget {
             }
         });
 
+        // prevent method from override
         Object.defineProperty(this, 'handleEvent', {
             writeable: false,
             value: (event: CustomEvent) => {
@@ -117,16 +118,14 @@ export class Model<T extends IDictionary> extends EventTarget {
      * @param key
      */
     get<TKey extends keyof T>(key: TKey): T[TKey];
-    get<TKey extends keyof T>(key: TKey[]): { [key in TKey]: T[key] };
-    get<TKey extends keyof T>(key: TKey | TKey[]): T[TKey] | { [key in TKey]: T[key] } {
-        if (key instanceof Array) {
-            return key.reduce((res, key) => {
-                res[key] = this.attributes[key];
+    get<TKey extends keyof T>(...keys: TKey[]): { [key in TKey]: T[key] };
+    get<TKey extends keyof T>(...keys: TKey[]): T[TKey] | { [key in TKey]: T[key] } {
+        if(keys.length === 1) return  this.attributes[keys[0]];
 
-                return res;
-            }, {} as { [key in TKey]: T[key] });
-        }
+        return keys.reduce((res, key) => {
+            res[key] = this.attributes[key];
 
-        return this.attributes[key];
+            return res;
+        }, {} as { [key in TKey]: T[key] });
     }
 }

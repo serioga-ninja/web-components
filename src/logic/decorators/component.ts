@@ -3,8 +3,10 @@ import dependencies, { TClass } from '../dependencies';
 import { Logger } from '../logger';
 import { Register, TComponent } from '../register';
 import { prepareClass, rand } from '../utils';
+import { proxyFactory } from '../watch-factory';
 
 export interface IHtmlComponentOptions {
+    styles?: any;
     name: string;
     template?: string;
     templateUrl?: string;
@@ -58,7 +60,9 @@ export const Component = (options: IHtmlComponentOptions) => {
             }
 
             private createInstance() {
-                this.componentInstance = new ComponentClass(...dependencies.getInstances(options.require));
+                const Constructor = proxyFactory(this, ComponentClass, options.attributes);
+
+                this.componentInstance = new Constructor(...dependencies.getInstances(options.require));
                 this.componentInstance.el = this;
             }
 
@@ -123,7 +127,9 @@ export const Component = (options: IHtmlComponentOptions) => {
                     this.componentInstance.beforeRender();
                 }
 
-                shadowRoot.innerHTML = ejs.render(options.template, this.componentInstance);
+                if(options.template) {
+                    shadowRoot.innerHTML = ejs.render(options.template, this.componentInstance);
+                }
 
                 if (typeof this.componentInstance.afterRender === 'function') {
                     this.componentInstance.afterRender();
