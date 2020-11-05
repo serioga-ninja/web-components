@@ -1,13 +1,12 @@
 {
-  "name": "web-components",
-  "version": "1.0.0",
+  "name": "yet-another-web-components",
+  "private": true,
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build index.html",
-    "start:defining-element": "parcel demo/defining-element/index.html --public-url /",
-    "start:extend-native": "parcel demo/extending-native-HTML-elements/index.html --public-url /",
-    "start": "parcel index.html --public-url /"
+    "build": "parcel build demo/index.html",
+    "start": "parcel demo/index.html --public-url /"
   },
   "repository": {
     "type": "git",
